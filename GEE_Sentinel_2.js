@@ -41,16 +41,34 @@ var DEM = ee.Image('NASA/NASADEM_HGT/001').clip(rectangle);
 var elevation = DEM.select('elevation');
 var slope = ee.Terrain.slope(elevation);
 
+// Create NDWI mask
+var ndwi = image_L2A.normalizedDifference(['B3', 'B8']).rename('NDWI');
+var ndwiThreshold = ndwi.gte(0.0);
 
 //
 Map.centerObject(rectangle);
 Map.addLayer(image_L2A, {bands: ['B4', 'B3', 'B2'], min: 0, max: 0.2}, 'Imagen Sentinel-2_2A');
 Map.addLayer(image_L1C, {bands: ['B4', 'B3', 'B2'], min: 0, max: 3000}, 'Imagen Sentinel-2_1C');
-
+Map.addLayer(ndwi,{palette: ['red', 'yellow', 'green', 'cyan', 'blue']},'NDWI');
+Map.addLayer(ndwiThreshold, {palette:['black', 'white']}, 'NDWI Binary Mask');
 
 // EXPORT // // EXPORT // // EXPORT // // EXPORT // // EXPORT // // EXPORT // // EXPORT // // EXPORT // // EXPORT // 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Export water mask.
+Export.image.toDrive({
+  image: ndwiThreshold.visualize({min:0, max:1}),
+  description: 'NDWI_binary_mask',
+  folder: "Quimbo_Preprocesamiento_L2A",
+  scale: 10,
+  region: rectangle,
+  maxPixels: 1e13,
+  crs: 'EPSG:4326',
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Export drive - Slope.
+
 slope = resampling_images(slope)
 
 Export.image.toDrive({
