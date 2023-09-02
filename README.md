@@ -11,3 +11,4 @@ Metodología para estimar la biomasa de la zona de restauración no asistida en 
 
    
 4. Se crea diferentes modelos (Random Forest, XGboost, Neural Networks) y se hacen las predicciones.
+   - Subir el archivo Training_dataset y predict al archivo de google colab - "Quimbo_1".
